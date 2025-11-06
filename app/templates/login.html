@@ -1,0 +1,275 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login Page</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        .login-container {
+            display: flex;
+            height: 100vh;
+        }
+
+        .left-section {
+            flex: 1;
+            background-color: #f0f0f0;
+            background-image: url("{% static 'app/imgs/bg-logo.jpg' %}"); /* Leave blank for custom image */
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            min-height: 100vh;
+        }
+
+        .right-section {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: #ffffff;
+            padding: 2rem;
+        }
+
+        .login-form {
+            width: 100%;
+            max-width: 400px;
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            background: white;
+        }
+
+        .login-header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .login-header h1 {
+            color: #333;
+            font-size: 2rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+        .login-header p {
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: #333;
+            font-weight: 500;
+            font-size: 0.9rem;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: border-color 0.3s ease;
+            background-color: #fafafa;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: #4a90e2;
+            background-color: white;
+        }
+
+        .login-button {
+            width: 100%;
+            padding: 0.875rem;
+            background: linear-gradient(135deg, #4a90e2, #357abd);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 1rem;
+        }
+
+        .login-button:hover {
+            background: linear-gradient(135deg, #357abd, #2968a3);
+            transform: translateY(-1px);
+            box-shadow: 0 6px 20px rgba(74, 144, 226, 0.3);
+        }
+
+        .login-button:active {
+            transform: translateY(0);
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .login-container {
+                flex-direction: column;
+            }
+
+            .left-section {
+                flex: 0 0 40vh;
+                min-height: 40vh;
+            }
+
+            .right-section {
+                flex: 1;
+                padding: 1rem;
+                min-height: 60vh;
+            }
+
+            .login-form {
+                padding: 1.5rem;
+                box-shadow: none;
+                border-radius: 0;
+            }
+
+            .login-header h1 {
+                font-size: 1.75rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .left-section {
+                flex: 0 0 30vh;
+                min-height: 30vh;
+            }
+
+            .right-section {
+                padding: 0.5rem;
+                min-height: 70vh;
+            }
+
+            .login-form {
+                padding: 1rem;
+                max-width: 100%;
+            }
+
+            .login-header {
+                margin-bottom: 1.5rem;
+            }
+
+            .login-header h1 {
+                font-size: 1.5rem;
+            }
+
+            .form-group {
+                margin-bottom: 1.25rem;
+            }
+
+            .form-group input {
+                padding: 0.625rem 0.875rem;
+            }
+
+            .login-button {
+                padding: 0.75rem;
+                font-size: 0.95rem;
+            }
+        }
+
+        /* For very small screens */
+        @media (max-width: 320px) {
+            .login-header h1 {
+                font-size: 1.25rem;
+            }
+            
+            .login-form {
+                padding: 0.75rem;
+            }
+        }
+
+        /* Landscape orientation on mobile */
+        @media (max-height: 500px) and (orientation: landscape) {
+            .login-container {
+                flex-direction: row;
+            }
+            
+            .left-section {
+                flex: 0 0 40%;
+                min-height: 100vh;
+            }
+            
+            .right-section {
+                flex: 1;
+                padding: 1rem;
+                overflow-y: auto;
+            }
+            
+            .login-form {
+                padding: 1rem;
+            }
+            
+            .login-header {
+                margin-bottom: 1rem;
+            }
+            
+            .login-header h1 {
+                font-size: 1.5rem;
+            }
+            
+            .form-group {
+                margin-bottom: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <div class="left-section">
+            <!-- Background image will be applied via CSS -->
+             
+        </div>
+        
+        <div class="right-section">
+            <div class="login-form">
+                <div class="login-header">
+                    <h1>Welcome Back</h1>
+                    <p>Please sign in to your account</p>
+                </div>
+                
+                <form method="post" action="login/">
+                    {% csrf_token %}
+                    <div class="form-group">
+                        <label for="username">Username</label>
+                        <input type="text" id="username" name="username" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="password">Password</label>
+                        <input type="password" id="password" name="password" required>
+                    </div>
+                        <!-- {% if error %}
+                        <div class="error">
+                            {{ error }}
+                        </div>
+                        {% endif %} -->
+                    <button type="submit" class="login-button">Login</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+<script>
+    
+</script>
+</body>
+</html>

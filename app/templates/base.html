@@ -1,0 +1,109 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard</title>
+    <link rel="stylesheet" href="{% static 'app/css/base.css' %}">
+    {% block page_css %} {% endblock page_css %}
+    <link rel="stylesheet" href="" id="page-css">
+</head>
+<body>
+    <div class="container">
+        <!-- Mobile Overlay -->
+        <div class="mobile-overlay" id="mobileOverlay"></div>
+        
+        <!-- Sidebar -->
+        <div class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <div class="logo">D</div>
+                <div class="site-name">4h30.Net</div>
+                <button class="sidebar-close" id="sidebarClose">×</button>
+            </div>
+            <div class="sidebar-menu">
+                <div class="menu-item active">
+                    <div class="menu-icon">📊</div>
+                    <div class="menu-text">Kế Toán</div>
+                </div>
+                <div class="menu-item">
+                    <div class="menu-icon">👥</div>
+                    <div class="menu-text">User</div>
+                </div>
+                <div class="menu-item">
+                    <div class="menu-icon">📈</div>
+                    <div class="menu-text">Reports</div>
+                </div>
+                <div class="menu-item">
+                    <div class="menu-icon">💰</div>
+                    <div class="menu-text">Finance</div>
+                </div>
+                <div class="menu-item">
+                    <div class="menu-icon">⚙️</div>
+                    <div class="menu-text">Settings</div>
+                </div>
+                <div class="menu-item">
+                    <div class="menu-icon">📋</div>
+                    <div class="menu-text">Tasks</div>
+                </div>
+                <div class="menu-item">
+                    <div class="menu-icon">📞</div>
+                    <div class="menu-text">Support</div>
+                </div>
+                <div class="menu-item">
+                    <div class="menu-icon">🔒</div>
+                    <div class="menu-text">Security</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content" id="mainContent">
+            <!-- Navbar -->
+            <div class="navbar">
+                <button class="toggle-btn" id="toggleBtn">☰</button>
+                <div class="user-info">
+                    <!-- <div class="username" id="username">John Doe</div> -->
+                    <div class="username" id="username">{{ request.user.username }}</div>
+
+                    
+                    <div class="user-dropdown" id="userDropdown">
+                        <div class="dropdown-item">✏️ Sửa Thông Tin</div>
+                        <!-- <div class="dropdown-item">🚪 Đăng Xuất</div> -->
+                        <a href="{% url 'app:logout' %}" class ="dropdown-item">🚪 Đăng Xuất</a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Main Section -->
+            <div class="main-section">
+                <!-- Sub Navbar -->
+                <div class="sub-navbar">
+                    <div class="sub-nav-item {% if active_page == 'account' %}active{% endif %}" data-page="accounting">
+                        <a href="{% url 'app:index' %}" style="text-decoration: none" class="nav-link">Kế Toán</a>
+                    </div>
+                    <div class="sub-nav-item {% if active_page == 'member' %}active{% endif %}" data-page="member">
+                        <a href="{% url 'app:memberPage' %}" style="text-decoration: none" class="nav-link">Thành Viên</a> 
+                    </div>
+                    <div class="sub-nav-item {% if active_page == 'baocao' %}active{% endif %}" data-page="baocao">
+                        <a href="{% url 'app:reportPage' %}" style="text-decoration: none" class="nav-link">Báo Cáo</a>
+                    </div>
+
+                </div>
+
+                <!-- Page Content Container -->
+                <div class="page-content" id="pageContent">
+                    {% block content %}
+
+                    {% endblock content %}
+                    <!-- Dynamic content will be loaded here -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="{% static 'app/js/base.js' %}"></script>
+    {% block page_js %} {% endblock page_js %}
+    <!-- <script src="" id="page-js"></script> -->
+</body>
+</html>

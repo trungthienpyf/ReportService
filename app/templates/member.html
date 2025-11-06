@@ -1,0 +1,173 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block page_css %}
+    <link rel="stylesheet" href="{% static 'app/css/member.css' %}">
+{% endblock %}
+
+{% block content %}
+<!-- Member Page Content -->
+<div class="member-content">
+    <!-- Page Title -->
+    <div class="page-title">
+        <h2>Members</h2>
+    </div>
+
+    <!-- Error Message -->
+    {% if error %}
+    <div class="error-message">
+        {{ error }}
+    </div>
+    {% endif %}
+
+    <!-- Members Table -->
+    <div class="data-table-container">
+        <table class="data-table" id="membersTable">
+            <thead>
+                <tr>
+                    <th>Tên</th>
+                    <th>Trang</th>
+                    <th>Giao/Nhận</th>
+                    <th>Phần Trăm</th>
+                    <th>Chức Năng</th>
+                </tr>
+            </thead>
+            <tbody id="memberTableBody">
+                {% for shareholder in shareholders %}
+                <!-- Shareholder Row -->
+                <tr class="shareholder-row" data-shareholder-id="{{ shareholder.id }}">
+                    <td>
+                        <span class="expand-icon">▶</span>
+                        {{ shareholder.name }}
+                    </td>
+                    <td>-</td>
+                    <td>
+                        <!-- <span class="delivery-badge {{ shareholder.giaonhan|lower }}">
+                            {{ shareholder.giaonhan }}
+                        </span> -->
+                    </td>
+                    <!-- <td>{{ shareholder.phantram }}%</td> -->
+                     <td></td>
+                    <td>
+                        <button class="action-btn-small view-btn" onclick="viewMember('{{ shareholder.id }}')">Xem</button>
+                    </td>
+                </tr>
+                
+                <!-- Customer Rows (initially hidden) -->
+                {% for customer in shareholder.customers %}
+                <tr class="customer-row" data-shareholder-id="{{ shareholder.id }}" style="display: none;">
+                    <td></td>
+                    <td>{{ customer.customer_name }}</td>
+                    <td >
+                        <span class="delivery-badge 
+                            {% if customer.giaonhan == '(Giao +)' %}giao-plus
+                            {% elif customer.giaonhan == '(Nhận -)' %}nhan-minus
+                            {% else %}{{ customer.giaonhan|lower }}{% endif %}">
+                            {{ customer.giaonhan }}
+                        </span>
+                    </td>
+                    <td>{{ customer.phantram }}%</td>
+
+                    <td></td>
+                </tr>
+                {% endfor %}
+                {% empty %}
+                <tr>
+                    <td colspan="5" class="no-data">Không có thành viên</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- View Member Details Modal -->
+<div id="viewModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3>View Member Details</h3>
+            <span class="close">&times;</span>
+        </div>
+        <div class="modal-body">
+            <p>Viewing details for: <strong id="viewShareholderName"></strong></p>
+            <div class="customer-details">
+                <h4>Customer Information</h4>
+                <div id="customerDetails"></div>
+            </div>
+            <div class="form-actions">
+                <button type="button" id="closeViewBtn" class="btn-secondary">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block page_js %}
+<script>
+// Simple JavaScript for expand/collapse and modal functionality
+document.addEventListener('DOMContentLoaded', function() {
+    // Expand/collapse functionality
+    document.querySelectorAll('.shareholder-row').forEach(row => {
+        row.addEventListener('click', function(e) {
+            if (!e.target.closest('.action-btn-small')) {
+                const shareholderId = this.dataset.shareholderId;
+                const customerRows = document.querySelectorAll(`.customer-row[data-shareholder-id="${shareholderId}"]`);
+                const expandIcon = this.querySelector('.expand-icon');
+                
+                if (customerRows[0].style.display === 'none') {
+                    // Show customer rows
+                    customerRows.forEach(customerRow => {
+                        customerRow.style.display = '';
+                    });
+                    expandIcon.textContent = '▼';
+                } else {
+                    // Hide customer rows
+                    customerRows.forEach(customerRow => {
+                        customerRow.style.display = 'none';
+                    });
+                    expandIcon.textContent = '▶';
+                }
+            }
+        });
+    });
+    
+    // Modal functionality
+    const viewModal = document.getElementById('viewModal');
+    const closeBtn = document.querySelector('.close');
+    const closeViewBtn = document.getElementById('closeViewBtn');
+    
+    function closeModal() {
+        viewModal.style.display = 'none';
+    }
+    
+    closeBtn.addEventListener('click', closeModal);
+    closeViewBtn.addEventListener('click', closeModal);
+    
+    window.addEventListener('click', function(event) {
+        if (event.target === viewModal) {
+            closeModal();
+        }
+    });
+});
+
+// View member details function
+function viewMember(shareholderId) {
+    event.stopPropagation();
+    
+    // In a real implementation, you might want to fetch detailed data via AJAX
+    // For now, we'll just show a simple modal with basic info
+    const shareholderRow = document.querySelector(`.shareholder-row[data-shareholder-id="${shareholderId}"]`);
+    const shareholderName = shareholderRow.querySelector('td').textContent.trim().replace('▶', '').replace('▼', '').trim();
+    
+    document.getElementById('viewShareholderName').textContent = shareholderName;
+    
+    // Count customers for this shareholder
+    const customerCount = document.querySelectorAll(`.customer-row[data-shareholder-id="${shareholderId}"]`).length;
+    
+    const customerDetails = document.getElementById('customerDetails');
+    customerDetails.innerHTML = `<p>This shareholder has ${customerCount} associated customer(s).</p>`;
+    
+    document.getElementById('viewModal').style.display = 'block';
+}
+</script>
+{% endblock %}

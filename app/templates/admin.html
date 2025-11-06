@@ -1,0 +1,412 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block page_css %}
+    <link rel="stylesheet" href="{% static 'app/css/admin.css' %}">
+
+    <link rel="stylesheet" href="https://www.w3schools.com/w3css/5/w3.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+{% endblock page_css %}
+
+{% block content %}
+<!-- Accounting Page Content -->
+<div class="accounting-content">
+    <!-- Date Selection -->
+    <div class="date-selection">
+        <div class="date-presets">
+            <div class="date-preset" data-preset="yesterday">Hôm Qua</div>
+            <div class="date-preset active" data-preset="today">Hôm Nay</div>
+            <div class="date-preset" data-preset="thisweek">Tuần Này</div>
+            <div class="date-preset" data-preset="lastweek">Tuần Trước</div>
+        </div>
+        
+        <div class="date-filter">
+            <span>Từ Ngày:</span>
+            <input type="text" class="date-input" id="fromDate" placeholder="Today" readonly>
+            <span>Đến Ngày:</span>
+            <input type="text" class="date-input" id="toDate" placeholder="Today" readonly>
+        </div>
+    </div>
+
+    <!-- Calendar Modal -->
+    <div class="calendar-modal" id="calendarModal">
+        <div class="calendar-content">
+            <div class="calendar-header">
+                <button class="calendar-nav" id="prevMonth">‹</button>
+                <span class="calendar-title" id="calendarTitle"></span>
+                <button class="calendar-nav" id="nextMonth">›</button>
+            </div>
+            <div class="calendar-grid" id="calendarGrid"></div>
+            <div class="calendar-actions">
+                <button class="calendar-btn cancel" id="cancelDate">Hủy</button>
+                <button class="calendar-btn confirm" id="confirmDate">Xác Nhận</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Action Buttons -->
+    <div class="action-buttons">
+        <button class="action-btn scan-btn" id="scanBtn">🔍 Quét</button>
+        <button class="action-btn report-btn" id="reportBtn">📄 Tạo Báo Cáo</button>
+         <button class="action-btn themkhach-btn" id="addByHand">Thêm Khách Hàng</button>
+         <button class="action-btn newday-create-btn" id="newdayCreateBtn">📅 Tạo Ngày Mới</button>
+    </div>
+
+    <!-- Data Table -->
+    <!-- Data Table -->
+<div class="data-table-container" id="dataTableContainer" style="display: none;">
+    <table class="data-table" id="statsTable">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Tên</th>
+                <th>Thắng Thua</th>
+                <th>Tổng Cược</th>
+                <th>Lai Về</th>
+                <th>Thành Viên</th>
+                <th>Phần Trăm</th>
+                <th>Thành Tiền</th>
+                <th></th>
+                <th></th>
+                <th>Chức Năng</th>
+            </tr>
+        </thead>
+        <tbody id="dataTableBody">
+            <!-- Parent and child rows will be inserted here dynamically -->
+        </tbody>
+    </table>
+</div>
+
+
+
+
+
+<div id="newDayModal" class="modal">
+    <div class="modal-newday-content">
+        <div class="modal-newday-header">
+            <h2>Tạo Ngày Mới</h2>
+            <span class="modal-btn" id="close-newday-modal">&times;</span>
+        </div>
+        <div class="modal-newday-body">
+            <!-- Add machine selection section -->
+            <div class="machine-selection-section">
+                <div class="machine-select-group">
+                    <label for="machineSelect">Chọn Máy:</label>
+                    <select id="machineSelect" class="machine-select">
+                        {% for machine in machine_list %}
+                                <option value="{{ machine }}">{{ machine }}</option>
+                            {% empty %}
+                                <option value="" disabled>Không có máy nào</option>
+                            {% endfor %}
+                    </select>
+                    <button class="scan-btn" id="scanCustomersBtn">Quét Khách Hàng</button>
+                </div>
+                <div class="scan-status" id="scanStatus"></div>
+            </div>
+            
+            <div class="newday-table-container" id="customerTableContainer" style="display: none;">
+                <table class="newday-table">
+                    <thead>
+                        <tr>
+                            <th>Tên Khách Hàng</th>
+                            <th>Thắng Thua</th>
+                            <th>Tổng Cược</th>
+                            <th>Lai về</th>
+                        </tr>
+                    </thead>
+                    <tbody id="newDayTableBody">
+                        <!-- Customer rows will be dynamically inserted here -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div class="modal-newday-footer">
+            <button class="modal-btn cancel-newday-btn" id="cancel-newday-btn">Hủy</button>
+            <button class="modal-btn save-newday-btn" id="save-newday-btn">Lưu</button>
+        </div>
+    </div>
+</div>
+
+
+
+    <!-- Modal HTML -->
+
+    <div class="investor-addition-modal" id="investorAdditionModal">
+    <div class="investor-addition-content">
+        <div class="investor-addition-header">
+            <h3 class="investor-addition-title" id="investorAdditionTitle">Thêm Cổ Đông</h3>
+            <button class="investor-addition-close" id="closeInvestorAddition">&times;</button>
+        </div>
+        
+        <div class="investor-addition-body">
+            <!-- Hidden fields for customer data -->
+            <input type="hidden" id="investorCustomerId">
+            <input type="hidden" id="investorCustomerName">
+            <input type="hidden" id="investorMachineName">
+            <input type="hidden" id="thangthuaValue">
+
+            
+            <!-- Investor Selection -->
+            <div class="investor-selection-field">
+                <label class="investor-selection-label">Cổ Đông</label>
+                <select class="investor-selection-dropdown" id="investorNameSelect">
+                    <option value="">Chọn cổ đông...</option>
+                    {% for shareholder in shareholder_list %}
+                        <option value="{{ shareholder }}">{{ shareholder }}</option>
+                    {% endfor %}
+                </select>
+                <input type="text" class="investor-selection-input" id="investorNewNameInput" 
+                       placeholder="Nhập tên cổ đông mới..." style="display: none;">
+            </div>
+
+            <!-- Percentage Input -->
+            <div class="investor-percentage-field">
+                <label class="investor-percentage-label">Phần Trăm (%)</label>
+                <input type="number" class="investor-percentage-input" id="investorPercentageValue" 
+                       placeholder="Nhập phần trăm..." min="0" max="100" step="0.01">
+            </div>
+
+            <!-- Create New Investor Toggle -->
+            <div class="investor-create-toggle">
+                <label class="investor-create-label">Tạo Cổ Đông Mới</label>
+                <label class="investor-create-switch">
+                    <input type="checkbox" id="investorCreateNewToggle">
+                    <span class="investor-create-slider"></span>
+                </label>
+            </div>
+
+            <!-- New Investor Section -->
+            <div class="investor-new-section" id="investorNewSectionArea" style="display: none;">
+                <div class="investor-username-field">
+                    <input type="text" class="investor-username-input" id="investorUsernameField" 
+                           value="{{ request.user.username }}" readonly>
+                </div>
+
+                <!-- View Book Toggle -->
+                <div class="investor-view-toggle">
+                    <label class="investor-view-label">Tự xem sổ</label>
+                    <label class="investor-view-switch">
+                        <input type="checkbox" id="investorViewBookToggle">
+                        <span class="investor-view-slider"></span>
+                    </label>
+                </div>
+
+                <!-- Password Input -->
+                <div class="investor-password-field" id="investorPasswordArea" style="display: none;">
+                    <input type="password" class="investor-password-input" id="investorPasswordField" 
+                           placeholder="Nhập mật khẩu...">
+                </div>
+            </div>
+
+            <!-- Delivery/Receive Toggle -->
+            <div class="investor-delivery-section">
+                <p class="investor-delivery-text">Giao/Nhận: Thành Tiền = tổng tiền * phần trăm</p>
+                <label class="investor-delivery-switch">
+                    <input type="checkbox" id="investorDeliveryModeToggle">
+                    <span class="investor-delivery-slider">
+                        <span class="investor-delivery-on">Giao +</span>
+                        <span class="investor-delivery-off">Nhận -</span>
+                    </span>
+                </label>
+            </div>
+        </div>
+
+        <!-- Modal Actions -->
+        <div class="investor-addition-actions">
+            <button class="investor-action-btn investor-action-cancel" id="cancelInvestorAddition">Hủy</button>
+            <button class="investor-action-btn investor-action-confirm" id="submitInvestorAddition">Thêm Cổ Đông</button>
+        </div>
+    </div>
+</div>
+
+
+
+
+
+
+    <div id="detailModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2>Sửa Cổ Đông</h2>
+            <span class="modal-btn"  id="close-modal">&times;</span>
+        </div>
+        <div class="modal-body">
+            <div class="input-group">
+                <label for="inputValue1">Thành Viên</label>
+                <input type="text" id="inputValue1" class="modal-input" readonly>
+            </div>
+            <div class="input-group">
+                <label for="inputValue2">Phần Trăm</label>
+                <input type="text" id="inputValue2" class="modal-input">
+            </div>
+            <div class="input-group">
+                <label class="switch-label">Toggle Switch:</label>
+                <label class="switch">
+                    <input type="checkbox" id="toggleSwitch">
+                    <span class="slider round"></span>
+                </label>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="modal-btn cancel-btn" id="huyDetailModal">Hủy</button>
+            <button class="modal-btn add-btn" id="update_codong">Sửa cổ đông</button>
+        </div>
+    </div>
+</div>
+
+
+
+
+
+
+
+<!-- <div id="themkhachModal" class="modal">
+    <div class="modalthemkhach-content">
+        <div class="modalthemkhach-header">
+            <h2>Thêm Khách</h2>
+            <span class="modal-btn"  id="close-modalthemkhach">&times;</span>
+        </div>
+        <div class="modalthemkhach-body">
+            <div class="customer-section" id="customerSelection">
+
+                <label class="machine-label">Máy</label>
+                    <select class="machine-select" id="machineSelect">
+                    <option value="">Chọn Máy...</option>
+                        {% for machine in machine_list %}
+                            <option value="{{ machine|slugify }}">{{ machine }}</option>
+                        {% endfor %}
+                    </select>
+                    <label class="customer-label">Khách</label>
+                    <select class="customer-select" id="customerSelect">
+                        <option value="">Chọn Khách...</option>
+                        {% for customer in customer_list %}
+                            <option value="{{ customer|slugify }}">{{ customer }}</option>
+                        {% endfor %}
+                    </select>
+
+
+
+            </div>
+            <div class="shareholder-them-section" id="shareholderSelection">
+                    <label class="shareholder-label">Cổ Đông</label>
+                    <select class="shareholder-them-select" id="shareholderthemSelect">
+                        <option value=""></option>
+                        {% for shareholder in shareholder_list %}
+                            <option value="{{ shareholder|slugify }}">{{ shareholder }}</option>
+                        {% endfor %}
+                        
+                    </select>
+            </div>
+            <div class="input-group-themkhach">
+                <label for="phantram">Phần Trăm</label>
+                <input type="text" id="phantram" class="modal-input">
+                <label for="thangthua">Thắng Thua:</label>
+                <input type="text" id="thangthua" class="modal-input">
+                <label for="tongcuoc">Tổng Cược:</label>
+                <input type="text" id="tongcuoc" class="modal-input">
+                <label for="laive">Lai về:</label>
+                <input type="text" id="laive" class="modal-input">
+            </div>
+        </div>
+        <div class="modalthemkhach-footer">
+            <button class="modal-btn cancel-themkhach-btn" id="huythemkhachModal">Hủy</button>
+            <button class="modal-btn add-themkhach-btn" id ="themkhach">Thêm </button>
+        </div>
+    </div>
+</div> -->
+
+
+
+<div id="themkhachModal" class="modal">
+    <div class="modalthemkhach-content">
+        <div class="modalthemkhach-header">
+            <h2>Thêm Khách</h2>
+            <span class="modal-btn" id="close-modalthemkhach">&times;</span>
+        </div>
+        <div class="modalthemkhach-body">
+            <div class="customer-section" id="customerSelection">
+                <div class="machine-section">
+                    <label class="machine-label">Máy</label>
+                    <select class="machine-select" id="machineSelect_themkhach">
+                        <option value="">Chọn Máy...</option>
+                        {% for machine in machine_list %}
+                            <option value="{{ machine|slugify }}">{{ machine }}</option>
+                        {% endfor %}
+                    </select>
+                    <button class="scan-btn" id="scanCustomerBtn">Quét</button>
+                </div>
+                
+                <div class="new-customer-section">
+                    <label class="checkbox-label">
+                        <input type="checkbox" id="newCustomerCheckbox"> Tạo khách mới
+                    </label>
+                    <div class="new-customer-input" id="newCustomerInput" style="display: none;">
+                        <label class="customer-label">Tên khách mới</label>
+                        <input type="text" id="newCustomerName" class="modal-input">
+                    </div>
+                </div>
+
+                <div class="existing-customer-section" id="existingCustomerSection">
+                    <label class="customer-label">Khách</label>
+                    <select class="customer-select" id="customerSelect">
+                        <option value="">Chọn Khách...</option>
+                        {% for customer in customer_list %}
+                            <option value="{{ customer|slugify }}">{{ customer }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+
+            <div class="input-group-themkhach">
+                <label for="thangthua">Thắng Thua:</label>
+                <input type="text" id="thangthua_themtay" class="modal-input">
+                <label for="tongcuoc">Tổng Cược:</label>
+                <input type="text" id="tongcuoc" class="modal-input">
+                <label for="laive">Lai về:</label>
+                <input type="text" id="laive" class="modal-input">
+            </div>
+        </div>
+        <div class="modalthemkhach-footer">
+            <button class="modal-btn cancel-themkhach-btn" id="huythemkhachModal">Hủy</button>
+            <button class="modal-btn add-themkhach-btn" id="themkhach">Thêm</button>
+        </div>
+    </div>
+</div>
+
+
+
+<div id="deleteModal" class="modalDelete">
+    <div class="modalDelete-content">
+        <input type="hidden" id="checkbox-hidden">
+        <div class="modalDelete-header">
+            <h3>Xác nhận xóa báo cáo</h3>
+            <span class="close" id ="xDeleteModel">&times;</span>
+        </div>
+        <div class="modalDelete-body">
+            <p>Bạn có chắc chắn xóa "<span id="reportName"></span>"?</p>
+            <p class="warning-text">Hành động này không thể hoàn tác.</p>
+        </div>
+        <div class="modalDelete-footer">
+            <button class="btn-modaldelete btn-secondary" id="cancelDelete">Hủy</button>
+            <button class="btn-modaldelete btn-danger" id="confirmDelete">Xóa</button>
+        </div>
+    </div>
+</div>
+
+
+
+
+
+
+</div>
+{% endblock content %}
+
+{% block page_js %}
+
+    <script src="{% static 'app/js/admin.js' %}">
+    </script>
+    <script src="{% static 'app/js/base.js' %}">
+    </script>
+
+    
+{% endblock page_js %}

@@ -1,0 +1,163 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load tz %}
+{% load humanize %}
+
+{% block page_css %}
+    <link rel="stylesheet" href="{% static 'app/css/report.css' %}">
+    <style>
+        .shareholder-row { cursor: pointer; background-color: #f8f9fa; }
+        .shareholder-row:hover { background-color: #e9ecef; }
+        .shareholder-row.expanded { background-color: #e3f2fd; }
+        .customer-details { display: none; }
+        .customer-details.expanded { display: table-row; }
+        .expand-icon { margin-right: 8px; transition: transform 0.3s ease; }
+        .expanded .expand-icon { transform: rotate(90deg); }
+        .customer-table { width: 100%; background-color: #fafafa; }
+        .customer-table td { padding: 8px 12px; border-bottom: 1px solid #dee2e6; }
+
+        .text-green {
+            color: #28a745;
+            font-weight: bold;
+        }
+
+        .text-red {
+            color: #dc3545;
+            font-weight: bold;
+            }
+    </style>
+{% endblock %}
+
+{% block content %}
+<!-- Report Page Content -->
+<div class="report-content">
+    <!-- Page Title -->
+    <div class="page-title">
+        <h2>{{ reports.name }}</h2>
+        <button class="add-btn" id="addReportBtn">+ Generate Report</button>
+    </div>
+
+    <!-- Reports Table -->
+    <div class="data-table-container">
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th></th>
+                    <th>STT</th>
+                    <th>Tên Cổ Đông</th>
+                    <th>Tổng Tiền</th>
+                </tr>
+            </thead>
+            <tbody id="reportTableBody">
+                {% for shareholder in data %}
+                <!-- Shareholder Row -->
+                <tr class="shareholder-row" data-sh-id="{{ shareholder.sh_id }}">
+                    <td><span class="expand-icon">▶</span></td>
+                    <td>{{ forloop.counter }}</td>
+                    <td>{{ shareholder.name_sh }}</td>
+                    <td class="money-value" data-value="{{ shareholder.thanhtien }}">
+                        {{ shareholder.thanhtien }}
+                    </td>
+                </tr>
+                
+                <!-- Customer Details Row -->
+                <tr class="customer-details" data-sh-id="{{ shareholder.sh_id }}">
+                    <td colspan="4">
+                        <table class="customer-table">
+                            <thead>
+                                <tr>
+                                    <th>STT</th>
+                                    <th>Tên Khách Hàng</th>
+                                    <th>Thắng/Thua</th>
+                                    <th>Tổng Cược</th>
+                                    <th>Phần Trăm</th>
+                                    <th>Giao/Nhận</th>
+                                    <th>Tổng Tiền</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for customer in shareholder.customerList %}
+                                <tr>
+                                    <td>{{ forloop.counter }}</td>
+                                    <td>{{ customer.username }}</td>
+                                    <td class="money-value" data-value="{{ customer.thangthua }}">
+                                        {{ customer.thangthua }}
+                                    </td>
+                                    <td class="money-value" data-value="{{ customer.tongcuoc }}">
+                                        {{ customer.tongcuoc }}
+                                    </td>
+                                    <td class="phantram" data-value="{{ customer.phantram }}">
+                                        {{ customer.phantram }}
+                                    </td>
+        <td class="{% if customer.giaonhan == '(Giao +)' %}text-green{% elif customer.giaonhan == '(Nhận -)' %}text-red{% endif %}">{{ customer.giaonhan }}</td>
+                                    <td class="money-value" data-value="{{ customer.thanhtien_khach }}">
+                                        {{ customer.thanhtien_khach }}
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}
+
+{% block page_js %}
+    <script>
+        function formatNumber(num) {
+        const number = parseFloat(num);
+        return number % 1 === 0 ? parseInt(number) : number;
+    }
+        document.addEventListener('DOMContentLoaded', function() {
+
+            const elements = document.querySelectorAll('.phantram');
+            elements.forEach(element => {
+            const value = element.getAttribute('data-value');
+            element.textContent = formatNumber(value);
+                });
+            // Corrected displayValue function - preserves negative signs
+            const displayValue = (value) => {
+                if (value === null || value === undefined) return '';
+                if (value === 0) return '0';
+        
+                const numericValue = Number(value);
+                if (numericValue < 0) {
+                    // REMOVED Math.abs() to keep the negative sign
+                    return `<span style="color: red">${numericValue.toLocaleString('en-US', {maximumFractionDigits: 0})}</span>`;
+                }
+        
+                return numericValue.toLocaleString('en-US', {maximumFractionDigits: 0});
+            };
+
+            // Format all money values using original backend values
+            const formatAllMoneyValues = () => {
+                const moneyElements = document.querySelectorAll('.money-value');
+                moneyElements.forEach(element => {
+                    // Get the original value from data-value attribute (preserved from backend)
+                    const originalValue = element.getAttribute('data-value');
+                    const formattedValue = displayValue(originalValue);
+                    element.innerHTML = formattedValue;
+                });
+            };
+
+            // Expand/collapse functionality
+            const shareholderRows = document.querySelectorAll('.shareholder-row');
+            shareholderRows.forEach(row => {
+                row.addEventListener('click', function() {
+                    const shId = this.getAttribute('data-sh-id');
+                    const customerDetails = document.querySelector(`.customer-details[data-sh-id="${shId}"]`);
+                    
+                    this.classList.toggle('expanded');
+                    customerDetails.classList.toggle('expanded');
+                });
+            });
+
+            // Initialize formatting with original values
+            formatAllMoneyValues();
+        });
+    </script>
+{% endblock %}

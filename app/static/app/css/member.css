@@ -1,0 +1,258 @@
+/* Member Page Specific Styles */
+
+.member-content {
+    animation: fadeIn 0.3s ease-in;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Enhanced table styles for member page */
+.member-content .data-table th:nth-child(3),
+.member-content .data-table td:nth-child(3) {
+    text-align: center;
+}
+
+.member-content .data-table th:nth-child(4),
+.member-content .data-table td:nth-child(4) {
+    text-align: center;
+}
+
+.member-content .data-table th:nth-child(5),
+.member-content .data-table td:nth-child(5) {
+    text-align: center;
+}
+
+/* Percentage styling */
+.member-content .data-table td:nth-child(4) {
+    font-weight: 600;
+    color: #2d3748;
+}
+
+/* Delivery/Receipt badge positioning */
+.member-content .data-table td:nth-child(3) {
+    padding: 15px 10px;
+}
+
+/* Action buttons container */
+.member-content .data-table td:nth-child(5) {
+    white-space: nowrap;
+}
+
+/* Member specific responsive adjustments */
+@media (max-width: 768px) {
+    .member-content .data-table {
+        min-width: 700px;
+    }
+    
+    .member-content .action-btn-small {
+        display: block;
+        width: 100%;
+        margin-bottom: 4px;
+        margin-right: 0;
+    }
+    
+    .member-content .action-btn-small:last-child {
+        margin-bottom: 0;
+    }
+}
+
+@media (max-width: 480px) {
+    .member-content .delivery-badge {
+        font-size: 10px;
+        padding: 3px 6px;
+    }
+}
+
+
+
+/* Expand/collapse icon */
+.expand-icon {
+    margin-right: 8px;
+    cursor: pointer;
+    transition: transform 0.2s;
+    display: inline-block;
+}
+
+/* Shareholder row styling */
+.shareholder-row {
+    cursor: pointer;
+    background-color: #f9f9f9;
+}
+
+.shareholder-row:hover {
+    background-color: #f0f0f0;
+}
+
+/* Customer row styling */
+.customer-row {
+    background-color: #fafafa;
+}
+
+.customer-row td:first-child {
+    padding-left: 40px;
+}
+
+.customer-row td {
+    color: #666;
+    font-style: italic;
+}
+
+/* Modal styles */
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0,0,0,0.5);
+}
+
+.modal-content {
+    background-color: #fff;
+    margin: 5% auto;
+    padding: 0;
+    border-radius: 8px;
+    width: 90%;
+    max-width: 600px;
+}
+
+.modal-header {
+    padding: 20px;
+    border-bottom: 1px solid #eee;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.modal-body {
+    padding: 20px;
+    max-height: 70vh;
+    overflow-y: auto;
+}
+
+.close {
+    color: #aaa;
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.close:hover {
+    color: #000;
+}
+
+/* Customer details styling */
+.customer-detail-item {
+    margin-bottom: 15px;
+    padding: 10px;
+    border: 1px solid #eee;
+    border-radius: 4px;
+}
+
+.customer-detail-item hr {
+    margin: 10px 0;
+    border: none;
+    border-top: 1px solid #eee;
+}
+
+.customer-list h4 {
+    margin-bottom: 15px;
+    color: #333;
+}
+
+/* Form elements (readonly style) */
+.form-group input:readonly,
+.form-group select:disabled {
+    background-color: #f5f5f5;
+    color: #666;
+    cursor: not-allowed;
+}
+
+.form-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    margin-top: 20px;
+}
+
+.btn-secondary {
+    background-color: #6c757d;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+/* Delivery badges */
+.delivery-badge {
+    padding: 4px 8px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: bold;
+}
+
+.delivery-badge.delivery {
+    background-color: #e3f2fd;
+    color: #1976d2;
+}
+
+.delivery-badge.receipt {
+    background-color: #f3e5f5;
+    color: #7b1fa2;
+}
+
+/* No data message */
+.no-data {
+    text-align: center;
+    color: #666;
+    font-style: italic;
+    padding: 20px;
+}
+
+
+.delivery-badge.giao-plus {
+            /* background-color: #e8f5e8; */
+            color: #2e7d32;
+            /* border: 1px solid #2e7d32; */
+        }
+.delivery-badge.nhan-minus {
+            /* background-color: #ffebee; */
+            color: #c62828;
+            /* border: 1px solid #c62828; */
+        }
+
+
+.delivery-badge {
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 12px;
+    font-weight: bold;
+}
+
+.delivery-badge.nhan {
+    background-color: #ffebee;
+    color: #c62828;
+}
+
+.delivery-badge.giao {
+    background-color: #e3f2fd;
+    color: #1565c0;
+}
+
+.delivery-badge.default {
+    background-color: #f5f5f5;
+    color: #666;
+}
