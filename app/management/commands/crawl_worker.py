@@ -228,7 +228,7 @@ class Command(BaseCommand):
         # password = os.getenv('PASSWORD_LOGIN')
         # yseterday = date.today() - timedelta(days=1)
         
-        date_query = date(2025,11,3)
+        date_query = date.today()
         from_date = date_query.strftime("%d/%m/%Y")
         to_date = date_query.strftime("%d/%m/%Y")
 

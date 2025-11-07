@@ -43,9 +43,9 @@ class CronManager:
         schedule.clear()
         
         # Chạy lúc 22:00 hàng ngày (giờ Việt Nam)
-        schedule.every().day.at("16:52").do(self.run_crawl_job)
+        schedule.every().day.at("22:00").do(self.run_crawl_job)
         
-        logger.info("Đã lên lịch crawl_worker chạy lúc 16:52 hàng ngày")
+        logger.info("Đã lên lịch crawl_worker chạy lúc 22:00 hàng ngày")
 
     def run_pending_jobs(self):
         """Chạy các jobs đã đến giờ trong background"""
@@ -77,7 +77,7 @@ class CronManager:
         )
         self.thread.start()
         
-        logger.info("Cron Manager đã khởi động - Sẽ chạy crawl_worker lúc 16:52 hàng ngày")
+        logger.info("Cron Manager đã khởi động - Sẽ chạy crawl_worker lúc 22:00 hàng ngày")
 
     def stop(self):
         """Dừng cron manager"""
