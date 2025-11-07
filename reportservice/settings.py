@@ -127,6 +127,14 @@ DATABASES = {
         'HOST': os.getenv('DB_HOST'),  # or your MySQL server IP
         'PORT': os.getenv('DB_PORT'),
 
+        'OPTIONS': {
+            'init_command': "SET sql_mode='STRICT_TRANS_TABLES,NO_ENGINE_SUBSTITUTION'",
+            'charset': 'utf8mb4',
+            'isolation_level': 'read committed',
+        },
+        'CONN_MAX_AGE': 300,
+        'TIME_ZONE': 'UTC',
+
     }
 }
 
