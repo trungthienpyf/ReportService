@@ -20,9 +20,21 @@ logger = logging.getLogger(__name__)
 VIETNAM_TZ = pytz.timezone('Asia/Ho_Chi_Minh')
 class Command(BaseCommand):
     help = 'Run the scheduled data crawl'
+
+
+    def add_arguments(self, parser):
+        parser.add_argument(
+        '--no-loop',
+        action='store_true',
+        help='Run once without infinite loop',
+    )
     def handle(self, *args, **options):
+
         logger.info("Starting crawler worker service")
-        self.run_worker()
+        if options['no_loop']:
+            self.run_crawl_job()
+        else:
+            self.run_worker()
 
     def get_vietname_timezone(self):
         return datetime.now(VIETNAM_TZ)
@@ -112,32 +124,32 @@ class Command(BaseCommand):
 
             # today =  date(2025,10,20)
             today=date_query
-            with transaction.atomic():
-                create_new_customer = []
-                skipped_customers = []
-                existing_customer_in_db = set(Customer.objects.values_list('name', flat =True))
-                existing_user_in_db = set(User.objects.values_list('username', flat =True))
+            # with transaction.atomic():
+            create_new_customer = []
+            skipped_customers = []
+            existing_customer_in_db = set(Customer.objects.values_list('name', flat =True))
+            existing_user_in_db = set(User.objects.values_list('username', flat =True))
 
-                for i in range(len(data)):
-                    # user = User.objects.get(username=user_list[i]['username'])
-                    user_machine_in_json = data[i]['username']
-                    if user_machine_in_json in existing_user_in_db:
-                        user = User.objects.get(username = user_machine_in_json)
-                        for j in range(len(data[i]["customersList"])):
-                            customer, customer_created = Customer.objects.get_or_create(
-                                name = data[i]["customersList"][j]['username'],
-                                user=user,
-                                defaults={}
-                            )
+            for i in range(len(data)):
+                # user = User.objects.get(username=user_list[i]['username'])
+                user_machine_in_json = data[i]['username']
+                if user_machine_in_json in existing_user_in_db:
+                    user = User.objects.get(username = user_machine_in_json)
+                    for j in range(len(data[i]["customersList"])):
+                        customer, customer_created = Customer.objects.get_or_create(
+                            name = data[i]["customersList"][j]['username'],
+                            user=user,
+                            defaults={}
+                        )
 
-                            customer_data = CustomerData.objects.create(
-                                customers=customer,
-                                laive=data[i]["customersList"][j]['lai_ve'],
-                                thangthua=data[i]["customersList"][j]['thang_thua'],
-                                tongcuoc=data[i]["customersList"][j]['tien_cuoc'],
-                                date=today
+                        customer_data = CustomerData.objects.create(
+                            customers=customer,
+                            laive=data[i]["customersList"][j]['lai_ve'],
+                            thangthua=data[i]["customersList"][j]['thang_thua'],
+                            tongcuoc=data[i]["customersList"][j]['tien_cuoc'],
+                            date=today
 
-                            )
+                        )
 
 
         except Exception as e:
@@ -152,41 +164,41 @@ class Command(BaseCommand):
         try:
             # today =  date(2025,10,20) 
             today = date_query
-            with transaction.atomic():
-                for i in range(len(data)):
-                    user_db = User.objects.get(username= data[i]['username'])
-                    for j in range(len(data[i]['customersList'])):
-                        customer = Customer.objects.get(name = data[i]['customersList'][j]['username'], user=user_db)
-                        for k in range(len(data[i]['customersList'][j]["shareholders"])):
-                            type = data[i]['customersList'][j]["shareholders"][k]["type"]
-                            parent_name = data[i]['customersList'][j]["shareholders"][k]["parent_name"]
-                            try:
-                                user, created_user = User.objects.get_or_create(
-                                    username = parent_name
-                                )
-                                if created_user:
-                                    user.set_password(os.getenv('DEFAULT_PASSWORD'))
-                                    user.role=type
-                                    user.save()
-                                name_shareholder = data[i]['customersList'][j]["shareholders"][k]["name"]
-                                percent = data[i]['customersList'][j]["shareholders"][k]["percent"]
-                                giaonhan = data[i]['customersList'][j]["shareholders"][k]["formula"]
-                                shareholder, created_sh = ShareHolder.objects.get_or_create(
-                                    username=name_shareholder,
-                                    phantram = percent,
-                                    giaonhan=giaonhan,
-                                    users=user
-                                )
-                                thanhtien = data[i]['customersList'][j]["shareholders"][k]["total"]
-                                sh_cus = ShareholderCustomer.objects.create(
-                                    shareholders=shareholder,
-                                    customers = customer,
-                                    thanhtien = thanhtien,
-                                    date = today
-                                )
-                                sh_cus.save()
-                            except Exception as e:
-                                print(f"Error with Create new User and Shareholder in insert_shareholder_to_db function: {e}")
+            # with transaction.atomic():
+            for i in range(len(data)):
+                user_db = User.objects.get(username= data[i]['username'])
+                for j in range(len(data[i]['customersList'])):
+                    customer = Customer.objects.get(name = data[i]['customersList'][j]['username'], user=user_db)
+                    for k in range(len(data[i]['customersList'][j]["shareholders"])):
+                        type = data[i]['customersList'][j]["shareholders"][k]["type"]
+                        parent_name = data[i]['customersList'][j]["shareholders"][k]["parent_name"]
+                        try:
+                            user, created_user = User.objects.get_or_create(
+                                username = parent_name
+                            )
+                            if created_user:
+                                user.set_password(os.getenv('DEFAULT_PASSWORD'))
+                                user.role=type
+                                user.save()
+                            name_shareholder = data[i]['customersList'][j]["shareholders"][k]["name"]
+                            percent = data[i]['customersList'][j]["shareholders"][k]["percent"]
+                            giaonhan = data[i]['customersList'][j]["shareholders"][k]["formula"]
+                            shareholder, created_sh = ShareHolder.objects.get_or_create(
+                                username=name_shareholder,
+                                phantram = percent,
+                                giaonhan=giaonhan,
+                                users=user
+                            )
+                            thanhtien = data[i]['customersList'][j]["shareholders"][k]["total"]
+                            sh_cus = ShareholderCustomer.objects.create(
+                                shareholders=shareholder,
+                                customers = customer,
+                                thanhtien = thanhtien,
+                                date = today
+                            )
+                            sh_cus.save()
+                        except Exception as e:
+                            print(f"Error with Create new User and Shareholder in insert_shareholder_to_db function: {e}")
 
         except Exception as e:
             print(e)
@@ -216,31 +228,30 @@ class Command(BaseCommand):
         # password = os.getenv('PASSWORD_LOGIN')
         # yseterday = date.today() - timedelta(days=1)
         
-        date_query = date(2025,11,6)
+        date_query = date(2025,11,3)
         from_date = date_query.strftime("%d/%m/%Y")
         to_date = date_query.strftime("%d/%m/%Y")
 
-        if now.hour ==11 and now.minute >=15:
-            logger.info("Starting scheduled crawl")
-            try:
+        
+        logger.info("Starting scheduled crawl")
+        try:
 
-                data = self.crawl_data(from_date, to_date)
+            data = self.crawl_data(from_date, to_date)
 
-                print("get data okk!")
+            print("get data okk!")
                 
-                list = self.insert_data_to_db(data, date_query)
+            list = self.insert_data_to_db(data, date_query)
 
-                print(list)
+            print(list)
                
-                return True
+            return True
                 
-            except Exception as e:
-                logger.error(f"Job failed: {str(e)}")
-                self.stdout.write(
-                    self.style.ERROR(f'Crawl job failed: {str(e)}')
-                )
-                return False
-        return False
+        except Exception as e:
+            logger.error(f"Job failed: {str(e)}")
+            self.stdout.write(
+                self.style.ERROR(f'Crawl job failed: {str(e)}')
+            )
+            return False
     
 
     def run_worker(self):
