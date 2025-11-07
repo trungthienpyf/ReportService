@@ -22,10 +22,10 @@ COPY requirements.txt  /app/
 # run this command to install all dependencies 
 RUN pip install --no-cache-dir -r requirements.txt
 
-python manage.py collectstatic --no-input
+RUN python manage.py collectstatic --no-input
 
 # Run migrations
-python manage.py migrate
+RUN python manage.py migrate
 
  
 # Copy the Django project to the container
