@@ -34,8 +34,7 @@ def login_view(request):
     if request.method =='POST':
         username = request.POST.get('username')
         password = request.POST.get('password')
-        print(username)
-        print(password)
+
         
         user = authenticate(request, username=username, password=password)
         
@@ -422,8 +421,6 @@ def create_data_new_day(request):
                 fromDateParse = parse_ddmmyyyy(fromDate)
                 previous_day = fromDateParse - datetime.timedelta(days=1)
 
-                print(fromDate)
-                print("customer List:", customers_data)
 
                 for cus in customers_data:
                     thangthua = float(cus['thangthua'].replace(',', ''))
@@ -439,7 +436,6 @@ def create_data_new_day(request):
                         tongcuoc = float(cus['tongcuoc'].replace(',', ''))
                     else:
                         tongcuoc=None
-                    print(thangthua, laive, tongcuoc)
                     
                     customer= Customer.objects.get(name =cus['customer_name'], user=user)
                     customerData = CustomerData.objects.create(
@@ -489,8 +485,6 @@ def create_data_new_day(request):
                 fromDateParse = parse_ddmmyyyy(fromDate_admin)
                 previous_day = fromDateParse - datetime.timedelta(days=1)
 
-                print(customers_data_admin)
-                print(machine)
                 machine  = User.objects.get(username=machine)
                 for cus in customers_data_admin:
                     thangthua = float(cus['thangthua'].replace(',', ''))
@@ -556,7 +550,7 @@ def get_customer(request):
         try:
             data = json.loads(request.body)
             machine_name = data.get('machine')
-            print(machine_name)
+
             
             # Get the user object for the selected machine
             machine_user = User.objects.get(username=machine_name, role='MACHINE')
@@ -598,14 +592,12 @@ def get_customer(request):
 @require_POST
 @login_required
 def createShareholer(request):
-    print(type(request))
     user = User.objects.get(username = request.user.username)
     if user.role=='MACHINE':
         try:
             
             data = json.loads(request.body)
             
-            print(data)
             id = data.get('id')
             
             tenKhachHang = data.get('tenKhachHang')
@@ -679,7 +671,6 @@ def addShareholderAdmin(request):
         if user.role in ["ACCOUNTANT", "ADMIN"]:
             data = json.loads(request.body)
             
-            print(data)
             
             tenKhachHang = data.get('tenKhachHang')
             machine_name =data.get('machine')
@@ -789,8 +780,6 @@ def deleteShareholder(request):
             giaonhan_admin = data.get('giaonhan')
             fromDate_admin = data.get('fromDate')
             fromDateParse_admin = parse_ddmmyyyy(fromDate_admin)
-            print("phan tram cua co dong nay la:", phantram_codong)
-            print('giao nhan', giaonhan_admin)
 
             machine = User.objects.get(username=machine_name)
 
@@ -859,7 +848,6 @@ def update_shareholer(request):
             old_shareholder_customer.shareholders = new_shareholder
             old_shareholder_customer.save()
 
-            print(f"{tenKhachHang} - {codong} - {oldphantram} - {oldgiaonhan} - phan tram moi: {new_phantram} - giao nhan moi: {new_giaonhan}")
         
             return JsonResponse({
             "message":"update okk!",
@@ -979,7 +967,6 @@ def addCustomer(request):
             tongcuoc = data.get('tongcuoc')
             laive =data.get('laive')
             fromDate_parse = parse_ddmmyyyy(fromDate)
-            #print(f"ten khach: {customer_name} - ten co dong: {shareholder_name} - ngay: {fromDate} - thang thua: {thangthua} - lai ve: {laive} - tong cuoc: {tongcuoc}")
 
             thangthua_parse = float(thangthua.replace(',', ''))
             if tongcuoc !='':
@@ -993,7 +980,6 @@ def addCustomer(request):
                 laive=None
             # xử lý lai về như thắng thua và tổng cược
             
-            print(thangthua_parse, tongcuoc)
             if is_new_customer==False:
                 customer = Customer.objects.get(name = customer_name)
                 customerData =  CustomerData.objects.create(
@@ -1062,7 +1048,6 @@ def addCustomer(request):
             is_new_customer_admin = data.get('is_new_customer')
             fromDate_parse_admin = parse_ddmmyyyy(fromDate_admin)
 
-            print(f"{machine_name} - {customer_name_admin} - {thangthua_admin} - {tongcuoc_admin} - {laive_admin}")
 
             if tongcuoc_admin !='':
                 tongcuoc_admin = float(tongcuoc_admin.replace(',', ''))
@@ -1142,7 +1127,6 @@ def reportPage(request):
         user = User.objects.get(username = user_client)
         reports = Report.objects.filter(users=user)
 
-        print(reports)
         context ={
         'active_page':'baocao',
         'reports':reports
@@ -1175,110 +1159,6 @@ def createReport(request):
 
 
 
-# @login_required
-# @csrf_exempt
-# def reportDetail(request, report_id):
-#     if request.user.is_authenticated:
-#         user = User.objects.get(username=request.user.username)
-        
-#         # Get the report
-#         try:
-#             report = Report.objects.get(id=int(report_id), users=user)
-#             from_date = report.fromDate
-#             to_date = report.toDate
-#         except Report.DoesNotExist:
-#             return HttpResponse("Report not found", status=404)
-        
-#         # Get shareholders for this user
-#         shareholders = ShareHolder.objects.filter(users=user)
-        
-#         result_data = []
-#         grand_total_thanhtien = 0
-#         grand_total_thangthua = 0
-#         grand_total_laive = 0
-        
-#         for shareholder in shareholders:
-#             # Get all ShareholderCustomer records for this shareholder in date range
-#             shareholder_customers = ShareholderCustomer.objects.filter(
-#                 shareholders=shareholder,
-#                 date__range=[from_date, to_date]
-#             ).select_related('customers')
-            
-#             shareholder_data = {
-#                 "sh_id": shareholder.id,
-#                 "name_sh": shareholder.username,
-#                 "thanhtien": 0,  # Total amount for shareholder
-#                 "thangthua": 0,  # Total win/loss for shareholder
-#                 "laive": 0,      # Total laive for shareholder
-#                 "customerList": []
-#             }
-            
-#             # Dictionary to track customers and avoid duplicates
-#             customer_dict = {}
-            
-#             for sc in shareholder_customers:
-#                 customer = sc.customers
-#                 customer_id = customer.id
-                
-#                 if customer_id not in customer_dict:
-#                     # Calculate customer totals
-#                     customer_totals = CustomerData.objects.filter(
-#                         customers=customer,
-#                         date__range=[from_date, to_date]
-#                     ).aggregate(
-#                         total_thangthua=Sum('thangthua'),
-#                         total_tongcuoc=Sum('tongcuoc'),
-#                         total_laive=Sum('laive')
-#                     )
-                    
-#                     # Calculate total thanhtien for this customer with this shareholder
-#                     customer_thanhtien_total = ShareholderCustomer.objects.filter(
-#                         shareholders=shareholder,
-#                         customers=customer,
-#                         date__range=[from_date, to_date]
-#                     ).aggregate(total_thanhtien=Sum('thanhtien'))
-                    
-#                     # Use shareholder's phantram and giaonhan
-#                     customer_data = {
-#                         'id': customer_id,
-#                         'username': customer.name,
-#                         'giaonhan': shareholder.giaonhan,  # From ShareHolder model
-#                         'phantram': shareholder.phantram,  # From ShareHolder model
-#                         'thangthua': float(customer_totals['total_thangthua'] or 0),
-#                         'tongcuoc': float(customer_totals['total_tongcuoc'] or 0),
-#                         'laive': float(customer_totals['total_laive'] or 0),
-#                         'thanhtien_khach': float(customer_thanhtien_total['total_thanhtien'] or 0)
-#                     }
-                    
-#                     customer_dict[customer_id] = customer_data
-#                     shareholder_data["customerList"].append(customer_data)
-                    
-#                     # Update shareholder totals
-#                     shareholder_data["thanhtien"] += customer_data['thanhtien_khach']
-#                     shareholder_data["thangthua"] += customer_data['thangthua']
-#                     shareholder_data["laive"] += customer_data['laive']
-            
-#             # Update grand totals
-#             grand_total_thanhtien += shareholder_data["thanhtien"]
-#             grand_total_thangthua += shareholder_data["thangthua"]
-#             grand_total_laive += shareholder_data["laive"]
-            
-#             result_data.append(shareholder_data)
-        
-#         # Add grand totals to context
-#         context = {
-#             "ten": "Nguyen Nhat Hai",
-#             "reports": report,
-#             "data": result_data,
-#             "grand_total_thanhtien": grand_total_thanhtien,
-#             "grand_total_thangthua": grand_total_thangthua,
-#             "grand_total_laive": grand_total_laive
-#         }
-        
-#         template_report = loader.get_template('report_detail1.html')
-#         return HttpResponse(template_report.render(context, request))
-    
-#     return HttpResponse("Unauthorized", status=401)
 
 
 @login_required

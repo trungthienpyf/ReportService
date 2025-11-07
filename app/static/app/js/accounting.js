@@ -272,7 +272,7 @@ async function loadStatisticData(fromDate, toDate){
         //     url.searchParams.append('from_date', fromDate);
         //     url.searchParams.append('to_date', toDate);
         // }
-        console.log(fromDate, toDate);
+        // console.log(fromDate, toDate);
         const response = await fetch(`/api-get-statistic?from_date=${encodeURIComponent(fromDate)}&to_date=${encodeURIComponent(toDate)}`, 
         {
             headers:{
@@ -1356,10 +1356,10 @@ const themkhachbtn = document.getElementById('addByHand');
             const tongcuoc = document.getElementById('tongcuoc').value;
             const laive = document.getElementById('laive').value;
             
-            console.log('New Customer:', createNewCustomer);
-            console.log('Customer Name:', customerName);
-            //console.log('Shareholder:', shareholderThemName);
-            console.log('Thang Thua:', thangthua);
+            // console.log('New Customer:', createNewCustomer);
+            // console.log('Customer Name:', customerName);
+            // //console.log('Shareholder:', shareholderThemName);
+            // console.log('Thang Thua:', thangthua);
             
             try {
                 const response = await fetch(`/api-add-customer/`, {
