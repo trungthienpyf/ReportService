@@ -22,10 +22,7 @@ COPY requirements.txt  /app/
 # run this command to install all dependencies 
 RUN pip install --no-cache-dir -r requirements.txt
 
-RUN python manage.py collectstatic --no-input
 
-# Run migrations
-RUN python manage.py migrate
 
  
 # Copy the Django project to the container
@@ -35,4 +32,7 @@ COPY . /app/
 EXPOSE 8000
  
 # Run Django’s development server
-CMD ["python", "manage.py", "runserver", "0.0.0.0:8000"]
+COPY entrypoint.sh /entrypoint.sh
+RUN chmod +x /entrypoint.sh
+
+ENTRYPOINT ["/entrypoint.sh"]
